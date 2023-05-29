@@ -177,3 +177,194 @@ public class Main {
 ### 풀이 과정
 
 - 00시 00분 00초 ~ N시 59분 59초
+- 분, 초는 모두 60초이다. → 반복 한 번만 돌리면 됨
+    - 3, 13, 23, 30~39, 43, 53 →15
+- n이 3인 경우는 0~59까지 모두 포함
+- 분이 3인 경우도 모두 포함되어야 함 → 60
+- **경우의 수 정리**
+    - 분이 3, 13, 23, 30~39, 43, 53 →15 인 경우는 모든 수를 다 넣어야함 → 15 * 60
+    - 그 외의 분이면 15개씩 → 60 - 15 = 45
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+// 코드 실행 시간:                    2ms
+
+public class MyClass {
+    public static void main(String args[]) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        int n = Integer.parseInt(reader.readLine());
+        int count = 0;
+        
+        for (int i = 0; i <= n; i++) {
+            if (i == 3) {
+                count += 60 * 60;
+            } else {
+                count += (15 * 60) + (45 * 15);
+            }
+        }
+        
+        System.out.println(count);
+    }
+}
+```
+
+### 해설
+
+- 모든 경우의 수를 하나씩 세서 푸는 문제
+- 완전 탐색 유형 문제이다.
+- 일반적으로 완전 탐색 알고리즘은 비효율적인 시간 복잡도를 가지고 있기 때문에, **전체 데이터의 개수가 100만개 이하일 때 적절하다.**
+
+```java
+import java.util.*;
+
+public class Main {
+
+    // 특정한 시각 안에 '3'이 포함되어 있는지의 여부
+    public static boolean check(int h, int m, int s) {
+        if (h % 10 == 3 || m / 10 == 3 || m % 10 == 3 || s / 10 == 3 || s % 10 == 3)
+            return true;
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // H를 입력받기 
+        int h = sc.nextInt();
+        int cnt = 0;
+
+        for (int i = 0; i <= h; i++) {
+            for (int j = 0; j < 60; j++) {
+                for (int k = 0; k < 60; k++) {
+                    // 매 시각 안에 '3'이 포함되어 있다면 카운트 증가
+                    if (check(i, j, k)) cnt++;
+                }
+            }
+        }
+
+        System.out.println(cnt);
+    }
+
+}
+```
+
+- 매 시각을 문자열로 바꾼 다음 문자열에 3이 포함됐는지 검사한다.
+- 1초씩 늘리면서 시, 분, 초를 문자열로 변환하여 합친 후 확인한다.
+
+## 실전문제 - 왕실의 나이트
+
+### 풀이 과정
+
+- 왕실 정원은 8 x 8
+- 특정한 한 칸에 나이트가 서 있다.
+- 나이트는 L자로만 이동할 수 있고, 정원 밖으로는 나갈 수 없다.
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class MyClass {
+    public static void main(String args[]) throws IOException {
+        Map<Integer, int[]> moves = new HashMap<>();
+        
+        moves.put(0, new int[]{1, 2});
+        moves.put(1, new int[]{-1, 2});
+        moves.put(2, new int[]{1, -2});
+        moves.put(3, new int[]{-1, -2});
+
+        moves.put(4, new int[]{2, 1});
+        moves.put(5, new int[]{-2, 1});
+        moves.put(6, new int[]{2, -1});
+        moves.put(7, new int[]{-2, -1});
+        
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String start = reader.readLine();
+        
+        // Arrays.asList의 시간 복잡도는 O(1)
+        List<String> rows = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8"));
+        List<String> cols = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h"));
+        
+        int[] position = new int[]{ 
+            rows.indexOf(String.valueOf(start.charAt(1))),
+            cols.indexOf(String.valueOf(start.charAt(0))) 
+        };
+        
+        int count = 0;
+        
+        for (int i = 0; i < 8; i++) {
+            int[] move = moves.get(i);
+            int row = position[0];
+            int col = position[1];
+            
+            row += move[0];
+            col += move[1];
+            count++;
+            
+            if (row < 0 || row >= 8 || col < 0 || col >= 8) {
+                count--;
+            }
+        }
+        
+        System.out.println(count);
+    }
+}
+```
+
+### 문제 해설
+
+- 상하좌우 문제와 유사하다.
+
+```java
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // 현재 나이트의 위치 입력받기
+        String inputData = sc.nextLine();
+        int row = inputData.charAt(1) - '0';
+        int column = inputData.charAt(0) - 'a' + 1;
+
+        // 나이트가 이동할 수 있는 8가지 방향 정의
+        int[] dx = {-2, -1, 1, 2, 2, 1, -1, -2};
+        int[] dy = {-1, -2, -2, -1, 1, 2, 2, 1};
+
+        // 8가지 방향에 대하여 각 위치로 이동이 가능한지 확인
+        int result = 0;
+        for (int i = 0; i < 8; i++) {
+            // 이동하고자 하는 위치 확인
+            int nextRow = row + dx[i];
+            int nextColumn = column + dy[i];
+            // 해당 위치로 이동이 가능하다면 카운트 증가
+            if (nextRow >= 1 && nextRow <= 8 && nextColumn >= 1 && nextColumn <= 8) {
+                result += 1;
+            }
+        }
+
+        System.out.println(result);
+    }
+
+}
+```
+
+- `int column = inputData.charAt(0) - 'a' + 1;`
+    - 알파벳을 숫자 1로 변경
+- 인덱스를 1 ~ 8로 설정하고 문제를 풀었다.

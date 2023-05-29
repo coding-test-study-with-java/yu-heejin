@@ -21,7 +21,6 @@ public class MyClass {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         
         int n = Integer.parseInt(reader.readLine());
-        
         int[] position = { 0, 0 };
         
         StringTokenizer tokenizer = new StringTokenizer(reader.readLine());
@@ -33,6 +32,7 @@ public class MyClass {
             position[0] += move[0];
             position[1] += move[1];
             
+            // 여길 좀 더 효율적으로 바꾸고싶은데.......
             if (position[1] >= n) {
                 position[1]--;
             }
