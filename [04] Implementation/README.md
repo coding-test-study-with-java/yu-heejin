@@ -368,3 +368,194 @@ public class Main {
 - `int column = inputData.charAt(0) - 'a' + 1;`
     - 알파벳을 숫자 1로 변경
 - 인덱스를 1 ~ 8로 설정하고 문제를 풀었다.
+
+## 실전 문제 - 게임 개발
+
+### 풀이 과정
+
+- 1 x 1 크기의 정사각형으로 이루어진 N x M 크기의 직사각형
+- 각각의 칸은 육지 아니면 바다
+- 맵의 각 칸은 (A, B)로 나타낼 수 있고, A는 북쪽으로부터 떨어진 칸의 개수, B는 서쪽으로부터 떨어진 칸의 개수
+- 캐릭터는 상하좌우로 움직일 수 있으나 바다로 된 공간에는 갈 수 없다.
+
+1. 현재 위치, 현재 방향을 기준으로 **왼쪽 방향부터 갈 곳을 정한다.**
+2. 캐릭터의 바로 왼쪽 방향에 아직 **가보지 않은 칸이 존재한다면, 왼쪽 방향으로 회전한 다음 왼쪽으로 한 칸을 전진**한다.
+3. 왼쪽 방향에 **가보지 않은 칸이 없다면 왼쪽 방향으로 회전만 수행하고 1단계로 돌아간다.**
+4. 네 방향 모두 이미 가본 칸이거나 바다로 되어 있는 경우, **바라보는 방향을 유지한 채로 한 칸 뒤로 가고 1단계로 돌아간다.**
+    1. 이 때 뒤쪽 방향이 바다인 칸이라 뒤로 갈 수 없는 경우 움직임을 멈춘다.
+
+- 0 북쪽 1 동쪽 2 남쪽 3 서쪽
+- 0 육지 1 바다
+- 북 → 왼 = col - 1
+- 동 → 왼 = row -1
+- 서 → 왼 = row + 1
+- 남 → 왼 = col + 1
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+
+public class MyClass {
+    public static void main(String args[]) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        Map<Integer, int[]> arrows = new HashMap<>();
+        
+        // 왼쪽 방향에 안 간 곳이 있다면, 왼쪽 방향으로 회전한 다음 왼쪽으로 한 칸 전진한다.
+        // row, col, 왼쪽 방향
+        arrows.put(0, new int[]{ 1, 0, 3 }); // row + 1
+        arrows.put(1, new int[]{ 0, -1, 0 });  // col - 1
+        arrows.put(2, new int[] { -1, 0, 1 }); // row - 1
+        arrows.put(3, new int[]{ 0, 1, 2 }); // col + 1
+        
+        // 맵 row, col
+        StringTokenizer mapToken = new StringTokenizer(reader.readLine(), " ");
+        int row = Integer.parseInt(mapToken.nextToken());
+        int col = Integer.parseInt(mapToken.nextToken());
+        
+        // 현재 위치와 바라보는 방향
+        StringTokenizer positionAndArrowToken = new StringTokenizer(reader.readLine(), " ");
+        int[] positionAndArrow = new int[] { 
+            Integer.parseInt(positionAndArrowToken.nextToken()),
+            Integer.parseInt(positionAndArrowToken.nextToken()),
+            Integer.parseInt(positionAndArrowToken.nextToken()),
+        };
+        
+        // 맵 생성
+         List<String> map = new ArrayList<>();
+        
+        for (int i = 0; i < row; i++) {
+            map.add(reader.readLine());
+        }
+        
+        // 이동
+        List<int[]> visited = new ArrayList<>();
+        int count = 0;
+        
+        for (int i = 0; i < row; i++) {
+            int[] move = arrows.get(positionAndArrow[2]);
+            
+            if (visited.contains(move)) {
+                // 왼쪽 방향에 가보지 않은 칸이 없다면 왼쪽 방향으로 회전만하고 1단계로 돌아간다.
+                positionAndArrow[2] = move[2];
+                continue;
+            }
+
+            if (!visited.contains(move)) {  // O(n)....
+                // 가보지 않은 칸이 존재하면 왼쪽 방향으로 회전한다음 왼쪽으로 한칸 전진한다.
+                positionAndArrow[0] += move[0];
+                positionAndArrow[1] += move[1];
+                positionAndArrow[2] = move[2];
+            }
+            
+            if (map.get(positionAndArrow[0]).charAt(positionAndArrow[1]) == '1') {
+                // 바다로 되어있는 칸의 경우 바라보는 방향을 유지한 채로 한 칸 뒤로가고 1단계로 돌아간다.
+                positionAndArrow[0] -= move[0];
+                positionAndArrow[1] -= move[1];
+                continue;
+            }
+            
+            visited.add(move);
+            count++;
+        }
+        
+        System.out.println(count);
+    }
+}
+```
+
+- 코드 너무 드러워ㅜㅜ
+
+### 문제 해설
+
+- 전형적인 시뮬레이션 문제
+- 일반적으로 방향을 설정해서 이동하는 문제 유형은 dx, dy라는 별도의 리스트를 만들어 방향을 정하는 것이 효과적이다.
+
+```java
+import java.util.*;
+
+public class Main {
+
+    public static int n, m, x, y, direction;
+    // 방문한 위치를 저장하기 위한 맵을 생성하여 0으로 초기화
+    public static int[][] d = new int[50][50];
+    // 전체 맵 정보
+    public static int[][] arr = new int [50][50];
+
+    // 북, 동, 남, 서 방향 정의
+    public static int dx[] = {-1, 0, 1, 0};
+    public static int dy[] = {0, 1, 0, -1};
+
+    // 왼쪽으로 회전
+    public static void turn_left() {
+        direction -= 1;
+        if (direction == -1) direction = 3;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // N, M을 공백을 기준으로 구분하여 입력받기
+        n = sc.nextInt();
+        m = sc.nextInt();
+        
+        // 현재 캐릭터의 X 좌표, Y 좌표, 방향을 입력받기
+        x = sc.nextInt();
+        y = sc.nextInt();
+        direction = sc.nextInt();
+        d[x][y] = 1; // 현재 좌표 방문 처리
+
+        // 전체 맵 정보를 입력 받기
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                arr[i][j] = sc.nextInt();
+            }
+        }
+
+        // 시뮬레이션 시작
+        int cnt = 1;
+        int turn_time = 0;
+        while (true) {
+            // 왼쪽으로 회전
+            turn_left();
+            int nx = x + dx[direction];
+            int ny = y + dy[direction];
+            // 회전한 이후 정면에 가보지 않은 칸이 존재하는 경우 이동
+            if (d[nx][ny] == 0 && arr[nx][ny] == 0) {
+                d[nx][ny] = 1;
+                x = nx;
+                y = ny;
+                cnt += 1;
+                turn_time = 0;
+                continue;
+            }
+            // 회전한 이후 정면에 가보지 않은 칸이 없거나 바다인 경우
+            else turn_time += 1;
+            // 네 방향 모두 갈 수 없는 경우
+            if (turn_time == 4) {
+                nx = x - dx[direction];
+                ny = y - dy[direction];
+                // 뒤로 갈 수 있다면 이동하기
+                if (arr[nx][ny] == 0) {
+                    x = nx;
+                    y = ny;
+                }
+                // 뒤가 바다로 막혀있는 경우
+                else break;
+                turn_time = 0;
+            }
+        }
+
+        System.out.println(cnt);
+    }
+
+}
+```
