@@ -378,23 +378,22 @@ public class MyClass {
     private static int m;
     
     private static boolean dfs(int x, int y) {
-		if (x < 0 || x >= n || y < 0 || y >= m || iceFrame[x][y] == 1) {
-		    return false;
+				if (x < 0 || x >= n || y < 0 || y >= m || iceFrame[x][y] == 1) {
+				    return false;
+				}
+				
+				iceFrame[x][y] = 1;
+				
+				dfs(x - 1, y);  // 상
+				dfs(x + 1, y);  // 하
+		    dfs(x, y - 1);  // 좌
+		    dfs(x, y + 1);  // 우
+		        
+		    return true;
 		}
-		
-		iceFrame[x][y] = 1;
-		
-		dfs(x - 1, y);  // 상
-		dfs(x + 1, y);  // 하
-        dfs(x, y - 1);  // 좌
-        dfs(x, y + 1);  // 우
-        
-        return true;
-	}
     
     public static void main(String args[]) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        Stack<Integer> dfs = new Stack<>();
         
         String[] nm = br.readLine().split(" ");
         n = Integer.parseInt(nm[0]);
@@ -422,3 +421,204 @@ public class MyClass {
     }
 }
 ```
+
+### 문제 해설
+
+- 해당 문제는 DFS로 해결할 수 있다.
+- 얼음을 얼릴 수 있는 공간이 상/하/좌/우로 연결되어 있기 때문에 그래프 형태로 모델링할 수 있다.
+- 이러한 그래프 형태로 묶음을 찾는 문제는 DFS로 간단히 해결할 수 있다.
+
+```java
+import java.util.*;
+
+public class Main {
+
+    public static int n, m;
+    public static int[][] graph = new int[1000][1000];
+
+    // DFS로 특정 노드를 방문하고 연결된 모든 노드들도 방문
+    public static boolean dfs(int x, int y) {
+        // 주어진 범위를 벗어나는 경우에는 즉시 종료
+        if (x <= -1 || x >=n || y <= -1 || y >= m) {
+            return false;
+        }
+        // 현재 노드를 아직 방문하지 않았다면
+        if (graph[x][y] == 0) {
+            // 해당 노드 방문 처리
+            graph[x][y] = 1;
+            // 상, 하, 좌, 우의 위치들도 모두 재귀적으로 호출
+            dfs(x - 1, y);
+            dfs(x, y - 1);
+            dfs(x + 1, y);
+            dfs(x, y + 1);
+            return true;
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // N, M을 공백을 기준으로 구분하여 입력 받기
+        n = sc.nextInt();
+        m = sc.nextInt();
+        sc.nextLine(); // 버퍼 지우기
+
+        // 2차원 리스트의 맵 정보 입력 받기
+        for (int i = 0; i < n; i++) {
+            String str = sc.nextLine();
+            for (int j = 0; j < m; j++) {
+                graph[i][j] = str.charAt(j) - '0';
+            }
+        }
+
+        // 모든 노드(위치)에 대하여 음료수 채우기
+        int result = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                // 현재 위치에서 DFS 수행
+                if (dfs(i, j)) {
+                    result += 1;
+                }
+            }
+        }
+        System.out.println(result); // 정답 출력 
+    }
+
+}
+```
+
+## 실전 문제 - 미로 탈출
+
+### 문제
+
+- N x M 크기의 직사각형 형태의 미로
+- 처음 위치는 (1, 1)이고 미로의 출구는 (N, M)의 위치에 존재
+- 괴물이 있으면 0, 괴물이 없으면 1
+- 탈출하기 위해 움직여야 하는 최소 칸의 개수, 칸을 셀 땐 시작 칸과 마지막 칸을 모두 포함한다.
+
+### 풀이 과정
+
+- [https://velog.io/@tsi0521/미로-최단-경로-DFS-와-BFS-비교](https://velog.io/@tsi0521/%EB%AF%B8%EB%A1%9C-%EC%B5%9C%EB%8B%A8-%EA%B2%BD%EB%A1%9C-DFS-%EC%99%80-BFS-%EB%B9%84%EA%B5%90)
+- 최단 경로는 BFS가 상당히 유리하다고 한다.
+
+```java
+import java.io.*;
+import java.util.*;
+
+// 코드 실행 시간:                   73ms
+
+class MazePosition {
+    int x;
+    int y;
+    
+    public MazePosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+public class MyClass {
+    // 상하좌우 탐색
+    private static final int[] MOVE_X = { -1, 1, 0, 0 };
+    private static final int[] MOVE_Y = { 0, 0, -1, 1 };
+    
+    private static int[][] maze;
+    private static int n, m;
+    
+    // 갈 수 있는 공간인지 체크
+    private static boolean isBoundary(int x, int y) {
+        if (x < 0 || x >= n || y < 0 || y >= m) {
+            return true;
+        }
+        
+        if (maze[x][y] == 0) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private static int bfs(int x, int y) {
+        Queue<MazePosition> queue = new LinkedList<>();
+        
+        // 출발 지점 insert
+        // queue에 삽입 후 방문 처리를 한다.
+        queue.offer(new MazePosition(0, 0));
+        maze[0][0] = 1;
+
+        while (!queue.isEmpty()) {
+            MazePosition position = queue.poll();  // 방문 처리된 큐를 꺼낸다.
+            System.out.println("( " + position.x + ", " + position.y + " ) => ");
+
+            for (int i = 0; i < 4; i++) {
+                // 상하좌우를 탐색하여 방문하지 않은 인접 노드를 모두 큐에 삽입 후 방문 처리
+                int nextX = position.x + MOVE_X[i];
+                int nextY = position.y + MOVE_Y[i];
+                
+                if (!isBoundary(nextX, nextY) && maze[nextX][nextY] == 1) {
+                    queue.offer(new MazePosition(nextX, nextY));
+                    maze[nextX][nextY] = maze[position.x][position.y] + 1;  // 원래 위치에서 +1 (거리 계산)
+                }
+            }
+        }
+        
+        return maze[n-1][m-1];
+    }
+    
+    public static void main(String args[]) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        
+        String[] nm = br.readLine().split(" ");
+        n = Integer.parseInt(nm[0]);
+        m = Integer.parseInt(nm[1]);
+        
+        maze = new int[n][m];
+        
+        for (int i = 0; i < n; i++) {
+            String mazeLine = br.readLine();
+            
+            for (int j = 0; j < m; j++) {
+                maze[i][j] = mazeLine.charAt(j) - '0';
+            }
+        }
+        
+        System.out.println(bfs(0, 0));
+    }
+}
+
+// 출력결과
+( 0, 0 ) => 
+( 1, 0 ) => 
+( 0, 0 ) => 
+( 1, 1 ) => 
+( 1, 2 ) => 
+( 0, 2 ) => 
+( 1, 3 ) => 
+( 1, 4 ) => 
+( 0, 4 ) => 
+( 1, 5 ) => 
+( 2, 5 ) => 
+( 3, 5 ) => 
+( 4, 5 ) => 
+( 3, 4 ) => 
+( 4, 4 ) => 
+( 3, 3 ) => 
+( 4, 3 ) => 
+( 3, 2 ) => 
+( 4, 2 ) => 
+( 3, 1 ) => 
+( 4, 1 ) => 
+( 3, 0 ) => 
+( 4, 0 ) =>
+```
+
+- [https://nack1400.tistory.com/entry/AlgorithmJava-알고리즘-자바-미로의-최단거리-통로-BFS-코딩테스트-DFS-BFS-미로찾기-최단경로](https://nack1400.tistory.com/entry/AlgorithmJava-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%9E%90%EB%B0%94-%EB%AF%B8%EB%A1%9C%EC%9D%98-%EC%B5%9C%EB%8B%A8%EA%B1%B0%EB%A6%AC-%ED%86%B5%EB%A1%9C-BFS-%EC%BD%94%EB%94%A9%ED%85%8C%EC%8A%A4%ED%8A%B8-DFS-BFS-%EB%AF%B8%EB%A1%9C%EC%B0%BE%EA%B8%B0-%EC%B5%9C%EB%8B%A8%EA%B2%BD%EB%A1%9C)
+
+### 문제 해설
+
+- BFS를 이용했을 때 매우 효과적으로 해결할 수 있다.
+    - BFS는 시작 지점에서 가까운 노드부터 차례대로 그래프의 모든 노드를 탐색하기 때문이다.
+- (1, 1) 지점에서부터 BFS를 수행하여 **모든 노드의 값에 거리 정보를 넣으면 된다.**
+    - 즉, **출발지로부터 얼마나 떨어진 거리**인지 해당 노드에 넣어준다.
+- **노드 값이 1이면 아직 방문하지 않은 장소이다.**
