@@ -9,10 +9,10 @@
 ### 자료구조 (Data Structure)
 
 - 데이터를 표현하고 관리하고 처리하기 위한 구조
-- 스택과 큐는 자료구조의 기초 개념으로 다음의 두 핵심적인 함수로 구성된다.
+- **스택과 큐는 자료구조의 기초 개념**으로 다음의 두 핵심적인 함수로 구성된다.
     - 삽입 (push): 데이터를 삽입한다.
     - 삭제 (pop): 데이터를 삭제한다.
-- 실제로 스택과 큐를 사용할 땐 삽입과 삭제 외에도 오버플로우와 언더플로우를 고민해야 한다.
+- 실제로 스택과 큐를 사용할 땐 삽입과 삭제 외에도 **오버플로우와 언더플로우를 고민**해야 한다.
     - **오버플로(overflow)는 특정한 자료구조가 수용할 수 있는 데이터의 크기를 이미 가득 찬 상태에서 삽입 연산을 수행할 때 발생**한다.
         - 즉, 저장 공간을 벗어나 데이터가 넘쳐 흐를 때 발생한다.
     - **언더플로(underflow)는 특정한 자료구조에 데이터가 전혀 들어 있지 않은 상태에서 삭제 연산을 수행하면 발생**한다.
@@ -115,12 +115,12 @@ public class Main {
 ```
 
 - 위 프로그램을 실행하면 문자열이 무한히 출력되면서 재귀에 빠진다.
-- 하지만 시간이 지나면 무한 루프로 인해 stackOverflow 예외가 발생한다.
+- 시간이 지나면 무한 루프로 인해 stackOverflow 예외가 발생한다.
 
 **재귀함수 종료 조건**
 
 - 재귀 함수를 사용할 땐 **종료 조건을 꼭 명시해야한다.**
-- 종료 조건을 명시하지 않으면 함수가 무한히 호출될 수 있다.
+    - 종료 조건을 명시하지 않으면 함수가 무한히 호출될 수 있다.
 - 컴퓨터 내부에서 재귀 함수의 수행은 **스택 자료구조를 이용**한다.
     - 함수를 계속 호출했을 때 **가장 마지막에 호출한 함수가 먼저 수행을 끝내야 그 앞의 함수 호출이 종료되기 때문이다.**
 - 컴퓨터의 구조 측면에서 **연속해서 호출되는 함수는 메인 메모리의 스택 공간에 적재되므로 재귀 함수는 스택 자료구조와 같다는 말은 틀린 말이 아니다.**
@@ -277,7 +277,7 @@ public class Main {
 
 - DFS는 깊이 우선 탐색 알고리즘이다.
 - **특정한 경로로 탐색하다가 특정한 상황에서 최대한 깊숙이 들어가서 노드를 방문한 후, 다시 돌아가 다른 경로로 탐색하는 알고리즘**이다.
-- DFS는 스택 자료구조를 이용하며, 구체적인 동작 과정은 다음과 같다.
+- DFS는 **스택 자료구조**를 이용하며, 구체적인 동작 과정은 다음과 같다.
     1. **탐색 시작 노드를 스택에 삽입하고 방문 처리**를 한다.
     2. 스택의 최상단 노드에 방문하지 않은 인접 노드가 있으면, **그 인접 노드를 스택에 넣고 방문 처리를 한다.** 방문하지 않은 인접 노드가 없으면 스택에서 최상단 노드를 꺼낸다.
     3. 2번의 과정을 더 이상 수행할 수 없을 때까지 반복한다.
@@ -350,5 +350,75 @@ public class Main {
 			}
 		}
 	}
+}
+```
+
+---
+
+## 실전문제 - 음료수 얼려먹기
+
+### 문제
+
+- 구멍이 뚫린 부분은 0, 칸막이가 존재하는 부분은 1로 표시된다.
+- 구멍이 뚫려있는 부분끼리 상, 하, 좌, 우로 붙어 있는 경우 서로 연결되어 있는 것으로 간주한다.
+- 얼음 틀의 모양이 주어질 때 생성되는 총 아이스크림의 개수는?
+
+### 풀이 과정
+
+- 0이 연결된 모든 공간을 찾아야한다.
+- 방문하지 않은 노드 중에서 0인 공간이 있다면 거기부터 시작해서 방문한다.
+
+```java
+import java.io.*;
+import java.util.*;
+
+public class MyClass {
+    private static int[][] iceFrame;
+    private static int n;
+    private static int m;
+    
+    private static boolean dfs(int x, int y) {
+		if (x < 0 || x >= n || y < 0 || y >= m || iceFrame[x][y] == 1) {
+		    return false;
+		}
+		
+		iceFrame[x][y] = 1;
+		
+		dfs(x - 1, y);  // 상
+		dfs(x + 1, y);  // 하
+        dfs(x, y - 1);  // 좌
+        dfs(x, y + 1);  // 우
+        
+        return true;
+	}
+    
+    public static void main(String args[]) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        Stack<Integer> dfs = new Stack<>();
+        
+        String[] nm = br.readLine().split(" ");
+        n = Integer.parseInt(nm[0]);
+        m = Integer.parseInt(nm[1]);
+        iceFrame = new int[n][m];
+        
+        for (int i = 0; i < n; i++) {
+            String frame = br.readLine();
+            for (int j = 0; j < m; j++) {
+                iceFrame[i][j] = frame.charAt(j) - '0';
+            }
+        }
+        
+        int iceCount = 0;
+        
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (dfs(i, j)) {
+                    iceCount++;
+                }
+            }
+        }
+        
+        System.out.println(iceCount);
+    }
 }
 ```
