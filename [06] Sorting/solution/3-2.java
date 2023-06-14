@@ -1,10 +1,9 @@
 import java.util.*;
 import java.io.*;
-
-// 코드 실행 시간:                   44ms
     
 public class MyClass {
     public static void main(String args[]) throws IOException {
+        long startTime = System.currentTimeMillis();
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         
         String[] nk = reader.readLine().split(" ");
@@ -31,12 +30,26 @@ public class MyClass {
             int a = A.get(i);
             int b = B.get(i);
             
-            A.set(i, b);
-            B.set(i, a);
+            if (a < b) {  // 해당 조건 반드시 추가
+                A.set(i, b);
+                B.set(i, a);
+            } else {
+                break;
+                // A는 오름차순, B는 내림차순
+                // 만약 A의 가장 작은 원소가 B의 가장 큰 원소보다 크면 더 볼 이유가 없음
+            }
         }
         
-        int sum = A.stream().mapToInt(Integer::intValue).sum();
+        int sum = 0;
+        
+        for (int i = 0; i < A.size(); i++) {
+            sum += A.get(i);    
+        }
         
         System.out.println(sum);
+        
+        long endTime = System.currentTimeMillis();
+
+        System.out.println(String.format("코드 실행 시간: %20dms", endTime - startTime));
     }
 }

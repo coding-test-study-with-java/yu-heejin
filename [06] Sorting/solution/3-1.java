@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-// 코드 실행 시간:                   44ms
+// 코드 실행 시간:                    4ms
     
 public class MyClass {
     public static void main(String args[]) throws IOException {
@@ -35,7 +35,11 @@ public class MyClass {
             B.set(i, a);
         }
         
-        int sum = A.stream().mapToInt(Integer::intValue).sum();
+        int sum = 0;
+        
+        for (int i = 0; i < A.size(); i++) {
+            sum += A.get(i);    
+        }
         
         System.out.println(sum);
     }

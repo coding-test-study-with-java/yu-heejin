@@ -165,7 +165,7 @@ public class Main {
 }
 ```
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/66d82a9c-0444-4843-abfa-e84c1167b8cb/Untitled.jpeg)
+![Untitled](https://github.com/coding-test-study-with-java/yu-heejin/assets/96467030/f2eb8182-ce32-4a26-91e4-eea7dc8d3e53)
 
 ### 퀵 정렬의 시간 복잡도
 
@@ -447,4 +447,103 @@ public class Main {
 - 배열의 원소는 모두 자연수이다.
 - 바꿔치기 연산은 배열 A에 있는 원소와 배열 B에 있는 원소를 골라서 두 원소를 서로 바꾼다.
 - 배열 A의 모든 원소의 합이 최대가 되도록 하는 것이 목표
-    - → 즉 B의 가장 큰 원소와 A의 가장 작은 원소를 바꿔치기한다.
+    - → **즉 B의 가장 큰 원소와 A의 가장 작은 원소를 바꿔치기한다.**
+
+```java
+import java.util.*;
+import java.io.*;
+    
+public class MyClass {
+    public static void main(String args[]) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        String[] nk = reader.readLine().split(" ");
+        int n = Integer.parseInt(nk[0]);
+        int k = Integer.parseInt(nk[1]);
+        
+        List<Integer> A = new ArrayList<>();
+        List<Integer> B = new ArrayList<>();
+        
+        String[] aScores = reader.readLine().split(" ");
+        for (int i = 0; i < n; i++) {
+            A.add(Integer.parseInt(aScores[i]));
+        }
+        
+        String[] bScores = reader.readLine().split(" ");
+        for (int i = 0; i < n; i++) {
+            B.add(Integer.parseInt(bScores[i]));
+        }
+        
+        Collections.sort(A);
+        Collections.sort(B, Comparator.reverseOrder());
+        
+        for (int i = 0; i < k; i++) {
+            int a = A.get(i);
+            int b = B.get(i);
+            
+            A.set(i, b);
+            B.set(i, a);
+        }
+        
+        int sum = A.stream().mapToInt(Integer::intValue).sum();
+        
+        System.out.println(sum);
+    }
+}
+```
+
+### 문제 해설
+
+- **배열 A의 가장 작은 원소가 배열 B의 가장 큰 원소보다 작을 때에만 교체해야한다!!!!!!**
+
+```java
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // N과 K를 입력받기
+        int n = sc.nextInt();
+        int k = sc.nextInt();
+
+        // 배열 A의 모든 원소를 입력받기
+        Integer[] a = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            a[i] = sc.nextInt();
+        }
+        // 배열 B의 모든 원소를 입력받기
+        Integer[] b = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            b[i] = sc.nextInt();
+        }
+
+        // 배열 A는 오름차순 정렬 수행
+        Arrays.sort(a);
+        // 배열 B는 내림차순 정렬 수행
+        Arrays.sort(b, Collections.reverseOrder());
+
+        // 첫 번째 인덱스부터 확인하며, 두 배열의 원소를 최대 K번 비교 
+        for (int i = 0; i < k; i++) {
+            // A의 원소가 B의 원소보다 작은 경우
+            if (a[i] < b[i]) {
+                // 두 원소를 교체
+                int temp = a[i];
+                a[i] = b[i];
+                b[i] = temp;
+            }
+            // A의 원소가 B의 원소보다 크거나 같을 때, 반복문을 탈출
+            else break;
+        }
+
+        // 배열 A의 모든 원소의 합을 출력
+        long result = 0;
+        for (int i = 0; i < n; i++) {
+            result += a[i];
+        }
+        System.out.println(result);
+    }
+
+}
+```
