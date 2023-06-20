@@ -330,3 +330,136 @@ public class Main {
     ```
     
     - `HashSet.contains()`의 시간복잡도는 O(1)이다.
+    
+
+## 실전 문제 2 - 떡볶이 떡 만들기
+
+### 풀이 과정
+
+- 절단기 높이 H, 높이가 H보다 긴 떡은 H 위의 부분이 잘리며, 낮은 떡은 잘리지 않는다.
+- 내림차순으로 정렬해서 떡 높이가 가장 큰 값을 높이로 설정해서 하나씩 줄인다?
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class MyClass {
+    private static int binarySearch(List<Integer> arr, int target, int start, int end) {
+        while (start <= end) {
+            int mid = (start + end) / 2;
+            int sum = 0;
+            
+            for (int i = 0; i < arr.size(); i++) {
+                if (arr.get(i) > mid) {   // 조건 필수
+                    sum += arr.get(i) - mid;    
+                }
+            }
+            
+            if (sum == target) {
+                return mid;
+            }
+            
+            if (sum > target) {
+                start = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+        
+        return -1;
+    }
+    
+    public static void main(String args[]) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        StringTokenizer numbers = new StringTokenizer(reader.readLine());
+        int n = Integer.parseInt(numbers.nextToken());
+        int m = Integer.parseInt(numbers.nextToken());
+        
+        StringTokenizer tempRiceCakes = new StringTokenizer(reader.readLine());
+        List<Integer> riceCakes = new ArrayList<>();
+        
+        while (tempRiceCakes.hasMoreTokens()) {
+            riceCakes.add(Integer.parseInt(tempRiceCakes.nextToken()));
+        }
+        
+        System.out.println(binarySearch(riceCakes, m, 0, Collections.max(riceCakes)));
+    }
+}
+```
+
+### 문제 해설
+
+- 전형적인 이진 탐색 문제이자 파라메트릭 서치 유형의 문제이다.
+- **파라메트릭 서치는 최적화 문제를 결정 문제로 바꾸어 해결하는 기법**이다.
+    - 결정 문제란 ‘예’ 혹은 ‘아니오’로 답하는 문제를 말한다.
+- **‘원하는 조건을 만족하는 가장 알맞은 값을 찾는 문제’**에 주로 파라메트릭 서치를 사용한다.
+    - 예를 들어 **범위 내에서 조건을 만족하는 가장 큰 값을 찾으라는 최적화 문제**라면 **이진 탐색으로 결정 문제를 해결하면서 범위를 좁혀갈 수 있다.**
+    - 코딩 테스트나 프로그래밍 대회에서는 보통 파라메트릭 서치 유형은 이진 탐색을 이용하여 해결한다.
+- **적절한 높이를 찾을 때까지 절단기의 높이 H를 반복해서 조정**하는 것이다.
+    - ‘현재 이 높이로 자르면 조건을 만족할 수 있는가?’를 확인한 뒤에 조건의 만족여부에 따라서 탐색 범위를 좁혀서 해결할 수 있다.
+    - 범위를 좁힐 땐 이진 탐색의 원리를 이용해 절반씩 탐색 범위를 좁혀 나간다.
+- 절단기의 높이(탐색 범위)는 1부터 10억까지의 정수 중 하나이다.
+    - 이처럼 큰 수를 보면 당연하다는 듯 가장 먼저 이진 탐색을 떠올려야 한다.
+- 가장 긴 떡의 길이를 높이 H의 시작과 끝으로 설정한 후, **중간지점을 절단기 높이로 설정하여 얻을 수 있는 떡의 합이 필요한 떡의 길이보다 크면 오른쪽으로 이동한다!**
+    - 궁금한게 시작점이 0이면 끝점은 18이어야 하지 않나..? 왜 19지…
+    - 0부터 설정한 이유는 …
+
+```java
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        
+        // 떡의 개수(N)와 요청한 떡의 길이(M)
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+
+        // 각 떡의 개별 높이 정보 
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+
+        // 이진 탐색을 위한 시작점과 끝점 설정
+        int start = 0;
+        int end = (int) 1e9;
+        // 이진 탐색 수행 (반복적)
+        int result = 0; 
+        while (start <= end) {
+            long total = 0;
+            int mid = (start + end) / 2;
+            for (int i = 0; i < n; i++) {
+                // 잘랐을 때의 떡의 양 계산
+                if (arr[i] > mid) total += arr[i] - mid; 
+            }
+            if (total < m) { // 떡의 양이 부족한 경우 더 많이 자르기(왼쪽 부분 탐색)
+                end = mid - 1;
+            }
+            else { // 떡의 양이 충분한 경우 덜 자르기(오른쪽 부분 탐색)
+                result = mid; // 최대한 덜 잘랐을 때가 정답이므로, 여기에서 result에 기록 
+                start = mid + 1;
+            }
+        }
+
+        System.out.println(result);
+    }
+
+}
+```
+
+## [추가] 파라메트릭 서치
+
+- 파라메트릭 서치는 이진 탐색과 다르게 주어진 일련의 값들이 아니라 **주어진 범위 내에서 원하는 값 또는 원하는 조건에 가장 일치하는 값을 찾아내는 알고리즘이다.**
+- 이진탐색이 1부터 9까지의 값에서 3이라는 값을 찾는 알고리즘이면 **파라메트릭 서치는 1부터 9까지의 범위 내에서 3이라는 값을 찾아가는 것에서 차이가 있다.**
+    - 따라서 주어진 값 중에서 탐색하는 이진탐색과 달리 파라메트릭 서치는 **주어진 것이 값이 아니라 범위이기 때문에 특정한 상황을 최적화 시키는 문제를 풀 때 용이하다.**
+- 파라메트릭 서치를 사용하면 **최적화 문제(문제의 상황을 만족하는 특정 변수의 최솟값, 최댓값을 구하는 문제)를 결정 문제로 바꾸어 풀 수 있어 문제 접근이 용이해진다.**
+    - 최적화 문제를 결정 문제로 바꿔 푼다는 말은 주어진 상황에서 최솟값, 최댓값 등의 특정 값을 구하는 문제를 **특정 값이 어떠한 조건을 만족하는지만 확인하면 되는 문제로 바뀐다는 의미이다.**
+- 위 떡 자르기 문제의 경우 가장 길이가 긴 떡의 길이만큼 H를 설정하고, 범위를 반으로 좁혀가며 탐색한다.
+
+### 참고 자료
+
+- https://marades.tistory.com/7
+- [https://velog.io/@lake/이분탐색-파라메트릭-서치Parametric-Search](https://velog.io/@lake/%EC%9D%B4%EB%B6%84%ED%83%90%EC%83%89-%ED%8C%8C%EB%9D%BC%EB%A9%94%ED%8A%B8%EB%A6%AD-%EC%84%9C%EC%B9%98Parametric-Search)
