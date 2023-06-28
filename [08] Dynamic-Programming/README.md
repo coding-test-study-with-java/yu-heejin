@@ -263,6 +263,8 @@ public class Main {
 ```
 
 ## 실전 문제 2 - 개미 전사
+![image](https://github.com/coding-test-study-with-java/yu-heejin/assets/96467030/d60f0dbb-31f9-48f6-9c5e-804d96692164)
+
 
 ### 풀이 과정
 
