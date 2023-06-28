@@ -7,7 +7,6 @@ import java.io.*;
 public class MyClass {
     
     private static int[] memo;
-    private static String[] foods;
     
     public static void main(String args[]) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
