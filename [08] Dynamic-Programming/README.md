@@ -126,3 +126,260 @@
 
 - 프로그래밍에서 다이나믹은 ‘**프로그램이 실행되는 도중에**’라는 의미이다.
 - 예를 들어 자료구조에서 동적 할당(Dynamic Allocation)은 프로그램 실행 중에 프로그램 실행에 필요한 메모리를 할당하는 기법이다.
+
+---
+
+## 실전 문제 1 - 1로 만들기
+
+### 풀이 과정
+
+- 연산 4개 → 1로 만들기
+- DP 메모이제이션으로 최소 경우의 수를 저장한다.
+- 참고 사이트 https://st-lab.tistory.com/133
+
+```java
+import java.util.*;
+import java.io.*;
+
+// 코드 실행 시간:                    1ms
+
+public class MyClass {
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        int x = Integer.parseInt(reader.readLine());
+        int[] memo = new int[x + 1];
+        
+        memo[0] = 0;
+        memo[1] = 0;
+        
+        // 반복문은 바텀 업, 재귀는 탑 다운 방식임을 기억하라.
+        for (int i = 2; i <= x; i++) {
+            memo[i] = memo[i - 1] + 1;    // 1을 빼는 경우 (기본)
+            
+            if (i % 5 == 0) {
+                memo[i] = Math.min(memo[i], memo[i / 5] + 1);   // 기존 방법 vs 5로 나누는 방법
+            }
+            
+            if (i % 3 == 0) {
+                 memo[i] = Math.min(memo[i], memo[i / 3] + 1);
+            }
+            
+            if (i % 2 == 0) {
+                 memo[i] = Math.min(memo[i], memo[i / 2] + 1);
+            }
+        }
+        
+        System.out.println(memo[x]);
+    }
+}
+```
+
+```java
+import java.util.*;
+import java.io.*;
+
+// 코드 실행 시간:                    2ms
+
+public class MyClass {
+    private static Integer[] memo;
+    
+    private static int makeOne(int x) {
+        if (memo[x] == null) {
+            memo[x] = makeOne(x - 1) + 1;
+            
+            if (x % 5 == 0) {
+                memo[x] = Math.min(memo[x], makeOne(x / 5) + 1);
+            }
+        
+            if (x % 3 == 0) {
+                memo[x] = Math.min(memo[x], makeOne(x / 3) + 1);
+            }
+            
+            if (x % 2 == 0) {
+                memo[x] = Math.min(memo[x], makeOne(x / 2) + 1);
+            }    
+        }
+        
+        return memo[x];
+    }
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        int x = Integer.parseInt(reader.readLine());
+        memo = new Integer[x + 1];
+        
+        memo[0] = 0;
+        memo[1] = 0;
+        
+        System.out.println(makeOne(x));
+    }
+}
+```
+
+### 문제 해설
+
+- 함수가 호출되는 과정을 그리면 같은 함수들이 동일하게 여러번 호출되는 것을 알 수 있다.
+- 점화식으로 표현하면 다음과 같다.
+    
+    $$
+    ai = min(ai-1, ai/2, ai/3, ai/5) + 1
+    $$
+    
+    - 끝에 1을 더해주는 이유는 함수의 호출 횟수를 구해야하기 때문이다.
+
+```java
+import java.util.*;
+
+public class Main {
+
+    // 앞서 계산된 결과를 저장하기 위한 DP 테이블 초기화 
+    public static int[] d = new int[30001];
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int x = sc.nextInt();
+
+        // 다이나믹 프로그래밍(Dynamic Programming) 진행(보텀업)
+        for (int i = 2; i <= x; i++) {
+            // 현재의 수에서 1을 빼는 경우
+            d[i] = d[i - 1] + 1;
+            // 현재의 수가 2로 나누어 떨어지는 경우
+            if (i % 2 == 0)
+                d[i] = Math.min(d[i], d[i / 2] + 1);
+            // 현재의 수가 3으로 나누어 떨어지는 경우
+            if (i % 3 == 0)
+                d[i] = Math.min(d[i], d[i / 3] + 1);
+            // 현재의 수가 5로 나누어 떨어지는 경우
+            if (i % 5 == 0)
+                d[i] = Math.min(d[i], d[i / 5] + 1);
+        }
+
+        System.out.println(d[x]);
+    }
+}
+```
+
+## 실전 문제 2 - 개미 전사
+
+### 풀이 과정
+
+- 식량 창고는 일직선, 정해진 수의 식량을 저장하고 있다.
+- 메뚜기는 일직선상에 존재하는 식량창고 중에서 **서로 인접한 식량 창고가 공격받으면 바로 알아챌 수 있기 때문에** 개미 전사가 정찰병에게 들키지 않고 식량 창고를 약탈하기 위해서는 **최소한 한 칸이상 떨어진 식량 창고를 약탈해야 한다.**
+- 일직선 상에서 최대한 많은 식량을 얻어야한다!
+- dp를 사용해서 n번째 식량 창고를 방문했을 때 얻을 수 있는 식량 수 중에서 가장 큰 경우의 수를 저장한다.
+- 한 칸씩 띄면서 최대한 많은 식량 창고를 터는 것이 중요하다.
+
+### 문제 해설
+
+- 특정 위치의 창고를 털지 안털지를 결정한다.
+    - 턴다 → 바로 옆 창고를 안 턴다
+    - 안 턴다 → 바로 옆 창고를 턴다
+- memo의 각 칸에는 누적 값의 합을 저장한다.
+- 자기 자신 + i - 2 누적값 vs i - 1
+
+```java
+import java.util.*;
+import java.io.*;
+
+// TODO: 다시 풀어볼것
+
+public class MyClass {
+    
+    private static int[] memo;
+    private static String[] foods;
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        int n = Integer.parseInt(reader.readLine());
+        memo = new int[n];
+        foods = reader.readLine().split(" ");
+        
+        memo[0] = Integer.parseInt(foods[0]);
+        // 0이 크면 1은 털지 않는 것으로 간주
+        memo[1] = Math.max(memo[0], Integer.parseInt(foods[1]));
+        
+        for (int i = 2; i < n; i++) {
+            memo[i] = Math.max(memo[i - 1], Integer.parseInt(foods[i]) + memo[i - 2]);
+        }
+        
+        System.out.println(memo[n - 1]);
+    }
+}
+```
+
+## 실전문제 3 - 바닥 공사
+
+### 풀이 과정
+
+- 가로 길이 N, 세로 길이 2
+- 덮개는 1 x 2, 2 x 1, 2 x 2
+
+```java
+import java.util.*;
+import java.io.*;
+
+// TODO: 다시 풀어볼것
+// 코드 실행 시간:                    2ms
+
+public class MyClass {
+    
+    private static int[] memo;
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        int n = Integer.parseInt(reader.readLine());
+        int[] memo = new int[n];
+        
+        memo[0] = 1;
+        memo[1] = 3;
+        
+        for (int i = 2; i < n; i++) {
+            memo[i] = (memo[i - 2] * 2 + memo[i - 1]) % 796796;
+        }
+        
+        System.out.println(memo[n-1]);
+    }
+}
+```
+
+### 문제 해설
+
+```java
+import java.util.*;
+
+public class Main {
+
+    // 앞서 계산된 결과를 저장하기 위한 DP 테이블 초기화 
+    public static int[] d = new int[1001];
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // 정수 N을 입력받기
+        int n = sc.nextInt();
+
+        // 다이나믹 프로그래밍(Dynamic Programming) 진행(보텀업)
+        d[1] = 1;
+        d[2] = 3;
+        for (int i = 3; i <= n; i++) {
+            d[i] = (d[i - 1] + 2 * d[i - 2]) % 796796;
+        }
+
+        // 계산된 결과 출력
+        System.out.println(d[n]);
+    }
+}
+```
+
+## 실전 문제 4 - 효율적인 화폐 구성
+
+### 풀이 과정
+
+- n가지 종류의 화폐
+- 화폐의 개수를 최소한으로 사용하여 가치의 합이 M원이 되도록 한다.
+- 순서는 다른 것은 같은 경우로 구분한다.
