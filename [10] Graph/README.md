@@ -25,6 +25,7 @@
     - 인접 행렬을 이용하는 방식은 간선 정보를 저장하기 위해서 O(V^2)만큼의 메모리 공간이 필요하다.
     - 인접 리스트를 이용할 땐 간선의 개수만큼 O(E)만큼만 메모리 공간이 필요하다.
         - 왜지..??[의문점]
+        - O(V + E)가 맞음!
     - 인접 행렬은 특정한 노드 A에서 다른 특정한 노드 B로 이어진 간선의 비용을 O(1)의 시간으로 즉시 알 수 있다는 장점이 있고, 인접 리스트를 이용할 땐 O(V)만큼의 시간이 소요된다.
 - 우선순위 큐를 이용하는 **다익스트라 최단 경로 알고리즘은 인접리스트**를 이용하는 방식이다.
     - 노드의 개수가 V개일 땐 V개의 리스트를 만들어 각 노드와 연결된 모든 간선에 대한 정보를 리스트에 저장했다.
@@ -408,3 +409,163 @@ public static void main(String[] args) {
     }
 }
 ```
+
+### 위상 정렬의 시간 복잡도
+
+- 위상 정렬의 시간 복잡도는 O(V+E)이다.
+- 차례대로 모든 노드를 확인하면서 해당 노드에서 출발하는 간선을 차례대로 제거해야 한다,
+
+---
+
+## 실전 문제 1 - 팀 결성
+
+### 풀이 과정
+
+- 학생들에게 0번부터 N번까지의 번호를 부여
+- 처음에는 모든 학생들이 서로 다른 팀으로 구분되어 N+1개의 팀 존재
+- 팀 합치기 연산은 두 팀을 합치는 연산 = union (0)
+- 같은 팀 여부 확인은 특정한 두 학생이 같은 팀에 속하는지 확인하는 연산 = find (1)
+
+```java
+import java.util.*;
+import java.io.*;
+
+// 코드 실행 시간:                    3ms
+
+public class MyClass {
+    
+    private static final int UNION = 0;
+    private static final int FIND = 1;
+    
+    private static String[] input;
+    private static int[] parent;
+    
+    private static int findParent(int x) {
+        if (x == parent[x]) {
+            return x;
+        }
+        
+        return parent[x] = findParent(parent[x]);
+    }
+    
+    private static void unionParent(int a, int b) {
+        a = findParent(a);
+        b = findParent(b);
+        
+        if (a < b) {
+            parent[b] = a;
+        } else {
+            parent[a] = b;
+        }
+    }
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        input = reader.readLine().split(" ");
+        
+        int n = Integer.parseInt(input[0]);
+        int m = Integer.parseInt(input[1]);
+        
+        parent = new int[n + 1];
+        
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+        
+        for (int i = 0; i < m; i++) {
+            input = reader.readLine().split(" ");
+            
+            int operation = Integer.parseInt(input[0]);
+            int a = Integer.parseInt(input[1]);
+            int b = Integer.parseInt(input[2]);
+            
+            if (operation == UNION) {
+                unionParent(a, b);
+            } else {
+                int rootA = findParent(a);
+                int rootB = findParent(b);
+                
+                if (rootA == rootB) {
+                    System.out.println("YES");
+                } else {
+                    System.out.println("NO");
+                }
+            }
+        }
+    }
+}
+```
+
+### 문제 해설
+
+- 전형적인 서로소 집합 알고리즘 문제
+
+```java
+import java.util.*;
+
+public class Main {
+
+    // 노드의 개수(N)와 연산의 개수(M)
+    // 노드의 개수는 최대 100,000개라고 가정
+    public static int n, m;
+    public static int[] parent = new int[100001]; // 부모 테이블 초기화
+
+    // 특정 원소가 속한 집합을 찾기
+    public static int findParent(int x) {
+        // 루트 노드가 아니라면, 루트 노드를 찾을 때까지 재귀적으로 호출
+        if (x == parent[x]) return x;
+        return parent[x] = findParent(parent[x]);
+    }
+
+    // 두 원소가 속한 집합을 합치기
+    public static void unionParent(int a, int b) {
+        a = findParent(a);
+        b = findParent(b);
+        if (a < b) parent[b] = a;
+        else parent[a] = b;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        n = sc.nextInt();
+        m = sc.nextInt();
+
+        // 부모 테이블상에서, 부모를 자기 자신으로 초기화
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+
+        // 각 연산을 하나씩 확인 
+        for (int i = 0; i < m; i++) {
+            int oper = sc.nextInt();
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+            // 합집합(Union) 연산인 경우
+            if (oper == 0) {
+                unionParent(a, b);
+            }
+            // 찾기(Find) 연산인 경우
+            else if (oper == 1) {
+                if (findParent(a) == findParent(b)) {
+                    System.out.println("YES");
+                }
+                else {
+                    System.out.println("NO");
+                }
+            }
+        }
+    }
+}
+```
+
+## 실전 문제 2 - 도시 분할 계획
+
+### 풀이 과정
+
+- 마을은 N개의 집과 그 집을 연결하는 M개의 길로 이루어져 있다.
+- 어느 방향으로든지 다닐 수 있는 편한 길 (무방향), 유지비(비용) 존재
+- 마을을 두개의 분리된 마을로 분할(union), 분할된 집들은 서로 연결(신장?)
+- 최소신장과 union사용
+- 두개로 나눈 후 최소 신장이어야함
