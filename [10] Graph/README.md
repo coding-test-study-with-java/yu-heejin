@@ -24,7 +24,6 @@
 - 그래프의 구현 방법은 2가지가 존재하는데, **인접 행렬과 인접 리스트** 방식이다.
     - 인접 행렬을 이용하는 방식은 간선 정보를 저장하기 위해서 O(V^2)만큼의 메모리 공간이 필요하다.
     - 인접 리스트를 이용할 땐 간선의 개수만큼 O(E)만큼만 메모리 공간이 필요하다.
-        - 왜지..??[의문점]
         - O(V + E)가 맞음!
     - 인접 행렬은 특정한 노드 A에서 다른 특정한 노드 B로 이어진 간선의 비용을 O(1)의 시간으로 즉시 알 수 있다는 장점이 있고, 인접 리스트를 이용할 땐 O(V)만큼의 시간이 소요된다.
 - 우선순위 큐를 이용하는 **다익스트라 최단 경로 알고리즘은 인접리스트**를 이용하는 방식이다.
@@ -355,7 +354,7 @@ static int[] indegree = new int[100001]
 static ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
 
 public static void topologySort() {
-	ArrayList<Integer> result = new ArrayLiust<>();  // 알고리즘 수행 결과를 담을 리스트
+	ArrayList<Integer> result = new ArrayList<>();  // 알고리즘 수행 결과를 담을 리스트
 	Queue<Integer> q = new LinkedList<>();
 	
 	// 처음 시작할 때는 진입 차수가 0인 노드를 큐에 삽입
@@ -569,3 +568,229 @@ public class Main {
 - 마을을 두개의 분리된 마을로 분할(union), 분할된 집들은 서로 연결(신장?)
 - 최소신장과 union사용
 - 두개로 나눈 후 최소 신장이어야함
+- 즉, 최소 신장 트리를 구한 후 그 중 가장 큰 간선을 제거하면 둘로 나뉘어진다!
+
+```java
+import java.util.*;
+import java.io.*;
+
+// (백준 기준) 메모리 325064KB, 시간 1740ms
+
+class House implements Comparable<House> {
+    
+    private int me;
+    private int connectedHouse;
+    private int cost;
+    
+    public House(int me, int connectedHouse, int cost) {
+        this.me = me;
+        this.connectedHouse = connectedHouse;
+        this.cost = cost;
+    }
+    
+    public int getCost() {
+        return cost;
+    }
+    
+    public int getMe() {
+        return me;
+    }
+    
+    public int getConnectedHouse() {
+        return connectedHouse;
+    }
+    
+    @Override
+    public int compareTo(House other) {
+        return this.cost - other.cost;
+    }
+}
+
+public class MyClass {
+    
+    private static String[] input;
+    private static int[] parent;
+    private static List<House> houses;
+    
+    private static int findParent(int x) {
+        if (x == parent[x]) {
+            return x;
+        }
+        
+        return parent[x] = findParent(parent[x]);
+    }
+    
+    private static void unionParent(int a, int b) {
+        a = findParent(a);
+        b = findParent(b);
+        
+        if (a < b) {
+            parent[b] = a;
+        } else {
+            parent[a] = b;
+        }
+    }
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        input = reader.readLine().split(" ");
+        
+        int n = Integer.parseInt(input[0]);
+        int m = Integer.parseInt(input[1]);
+        
+        parent = new int[n + 1];
+        houses = new ArrayList<>();
+        
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+        
+        for (int i = 0; i < m; i++) {
+            input = reader.readLine().split(" ");
+            
+            int a = Integer.parseInt(input[0]);
+            int b = Integer.parseInt(input[1]);
+            int c = Integer.parseInt(input[2]);
+            
+            houses.add(new House(a, b, c));
+        }
+        
+        Collections.sort(houses);   // 오름차순 정렬
+        
+        int result = 0;
+        int max = 0;
+        
+        for (int i = 0; i < houses.size(); i++) {
+            int cost = houses.get(i).getCost();
+            int me = houses.get(i).getMe();
+            int connectedHouse = houses.get(i).getConnectedHouse();
+            
+            if (findParent(me) != findParent(connectedHouse)) {
+                unionParent(me, connectedHouse);
+                result += cost;
+                max = cost;
+            }
+        }
+        
+        System.out.println(result - max);
+    }
+}
+```
+
+### 문제 해설
+
+- 최소한의 비용으로 2개의 신장 트리로 분할해야 한다.
+- 크루스칼 알고리즘으로 최소 신장 트리를 찾은 후, **최소 신장 트리를 구성하는 간선 중 가장 비용이 큰 간선을 제거한다.**
+
+```java
+import java.util.*;
+
+class Edge implements Comparable<Edge> {
+
+    private int distance;
+    private int nodeA;
+    private int nodeB;
+
+    public Edge(int distance, int nodeA, int nodeB) {
+        this.distance = distance;
+        this.nodeA = nodeA;
+        this.nodeB = nodeB;
+    }
+
+    public int getDistance() {
+        return this.distance;
+    }
+
+    public int getNodeA() {
+        return this.nodeA;
+    }
+
+    public int getNodeB() {
+        return this.nodeB;
+    }
+
+    // 거리(비용)가 짧은 것이 높은 우선순위를 가지도록 설정
+    @Override
+    public int compareTo(Edge other) {
+        if (this.distance < other.distance) {
+            return -1;
+        }
+        return 1;
+    }
+}
+
+public class Main {
+
+    // 노드의 개수(V)와 간선(Union 연산)의 개수(E)
+    public static int v, e;
+    public static int[] parent = new int[100001]; // 부모 테이블 초기화
+    // 모든 간선을 담을 리스트와, 최종 비용을 담을 변수
+    public static ArrayList<Edge> edges = new ArrayList<>();
+    public static int result = 0;
+
+    // 특정 원소가 속한 집합을 찾기
+    public static int findParent(int x) {
+        // 루트 노드가 아니라면, 루트 노드를 찾을 때까지 재귀적으로 호출
+        if (x == parent[x]) return x;
+        return parent[x] = findParent(parent[x]);
+    }
+
+    // 두 원소가 속한 집합을 합치기
+    public static void unionParent(int a, int b) {
+        a = findParent(a);
+        b = findParent(b);
+        if (a < b) parent[b] = a;
+        else parent[a] = b;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        v = sc.nextInt();
+        e = sc.nextInt();
+
+        // 부모 테이블상에서, 부모를 자기 자신으로 초기화
+        for (int i = 1; i <= v; i++) {
+            parent[i] = i;
+        }
+
+        // 모든 간선에 대한 정보를 입력 받기
+        for (int i = 0; i < e; i++) {
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+            int cost = sc.nextInt();
+            // 비용순으로 정렬하기 위해서 튜플의 첫 번째 원소를 비용으로 설정
+            edges.add(new Edge(cost, a, b));
+        }
+
+        // 간선을 비용순으로 정렬
+        Collections.sort(edges);
+        int last = 0; // 최소 신장 트리에 포함되는 간선 중에서 가장 비용이 큰 간선
+
+        // 간선을 하나씩 확인하며
+        for (int i = 0; i < edges.size(); i++) {
+            int cost = edges.get(i).getDistance();
+            int a = edges.get(i).getNodeA();
+            int b = edges.get(i).getNodeB();
+            // 사이클이 발생하지 않는 경우에만 집합에 포함
+            if (findParent(a) != findParent(b)) {
+                unionParent(a, b);
+                result += cost;
+                last = cost;
+            }
+        }
+
+        System.out.println(result - last);
+    }
+}
+```
+
+## 실전 문제 3 - 커리큘럼
+
+### 풀이 과정
+
+- 일단 위상정렬 사용
+- 동시에 여러 강의를 들을 수 있다.
+    - 같은 계층에 있는 강의는 동시에 들으면 된다.
+- 강의는 1번부터 n번까지 정해져있고, 입력값도 순서대로

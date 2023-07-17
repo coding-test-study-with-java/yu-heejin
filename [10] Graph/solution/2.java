@@ -1,6 +1,8 @@
 import java.util.*;
 import java.io.*;
 
+// (백준 기준) 메모리 325064KB, 시간 1740ms
+
 class House implements Comparable<House> {
     
     private int me;
@@ -81,6 +83,23 @@ public class MyClass {
             houses.add(new House(a, b, c));
         }
         
-        Collections.sort(houses);
+        Collections.sort(houses);   // 오름차순 정렬
+        
+        int result = 0;
+        int max = 0;
+        
+        for (int i = 0; i < houses.size(); i++) {
+            int cost = houses.get(i).getCost();
+            int me = houses.get(i).getMe();
+            int connectedHouse = houses.get(i).getConnectedHouse();
+            
+            if (findParent(me) != findParent(connectedHouse)) {
+                unionParent(me, connectedHouse);
+                result += cost;
+                max = cost;
+            }
+        }
+        
+        System.out.println(result - max);
     }
 }
