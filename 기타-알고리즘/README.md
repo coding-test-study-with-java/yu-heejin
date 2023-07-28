@@ -272,13 +272,52 @@ public static void main(String[] args) {
     - 순열
         
         ```java
-        
+        // 매번 전체 아이템중에서 뽑는다.
+        private void combination(int[] numbers, int n, int r) {
+            if (r == 0) {
+                results.add(numbers[bucket[0]] + numbers[bucket[1]]);
+                return;
+            }
+            
+            int lastIndex = bucket.length - r - 1;
+            int smallest = 0;
+            
+            for (int i = smallest; i < n; i++) {
+        				boolean isPick = false;
+        		
+        				for (int j = 0; j < bucket.length; j++) {
+        					if (i == bucket[j]) {
+        						isPick = true;
+        						break;
+        					}
+        				}
+        				
+        				if (!isPick) {
+        	        bucket[lastIndex + 1] = i;
+        	        combination(numbers, n, r - 1);
+        				}
+            }
+        }
         ```
         
     - 중복 순열
         
         ```java
-        
+        // 매번 전체 아이템중에서 뽑는다.
+        private void combination(int[] numbers, int n, int r) {
+            if (r == 0) {
+                results.add(numbers[bucket[0]] + numbers[bucket[1]]);
+                return;
+            }
+            
+            int lastIndex = bucket.length - r - 1;
+            int smallest = 0;   // 매번 전체에서 뽑는다.
+            
+            for (int i = smallest; i < n; i++) {
+                bucket[lastIndex + 1] = i;
+                combination(numbers, n, r - 1);
+            }
+        }
         ```
         
 - **조합(Combination)이란 서로 다른 n개에서 순서에 상관없이 서로 다른 r개를 선택**하는 것을 의미한다.
@@ -311,8 +350,9 @@ public static void main(String[] args) {
                     return;
                 }
                 
-                int lastIndex = bucket.length - r - 1;
-                int smallest = getSmallest(r, lastIndex);
+        				// 조합이기 때문에 가장 마지막에 뽑힌 수보다 큰 수를 뽑는다.
+                int lastIndex = bucket.length - r - 1;  // 가장 최근의 뽑힌 수가 저장된 위치
+                int smallest = getSmallest(r, lastIndex);  // 뽑혀야하는 최소 수
                 
                 for (int i = smallest; i < n; i++) {
                     bucket[lastIndex + 1] = i;
@@ -346,5 +386,30 @@ public static void main(String[] args) {
     - 중복 조합
         
         ```java
+        // 조합은 마지막에 뽑은 아이템보다 큰 것을 뽑았지만
+        // 중복 조합은 크거나 같은 것을 뽑는다.
         
+        private void combination(int[] numbers, int n, int r) {
+            if (r == 0) {
+                results.add(numbers[bucket[0]] + numbers[bucket[1]]);
+                return;
+            }
+            
+        		// 조합이기 때문에 가장 마지막에 뽑힌 수보다 큰 수를 뽑는다.
+            int lastIndex = bucket.length - r - 1;  // 가장 최근의 뽑힌 수가 저장된 위치
+            int smallest = getSmallest(r, lastIndex);  // 뽑혀야하는 최소 수
+            
+            for (int i = smallest; i < n; i++) {
+                bucket[lastIndex + 1] = i;
+                combination(numbers, n, r - 1);
+            }
+        }
+        
+        private int getSmallest(int r, int lastIndex) {
+            if (bucket.length > r) {
+                return bucket[lastIndex];   // 이전에 뽑았던 것과 같은 수
+            }
+            
+            return 0;
+        }
         ```
