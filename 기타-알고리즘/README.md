@@ -74,7 +74,7 @@ public static void main(String[] args) {
 	Arrays.fill(arr, true);   // 처음엔 모든 수가 소수인 것으로 초기화
 
 	for (int i = 2; i <= Math.sqrt(n); i++) {
-		if (arr[i] = true) {
+		if (arr[i] == true) {
 			int j = 2;
 			while (i * j <= n) {
 				arr[i * j] = false;
@@ -413,3 +413,131 @@ public static void main(String[] args) {
             return 0;
         }
         ```
+        
+
+---
+
+## 예제 B-1 소수 구하기
+
+### 풀이 과정
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class MyClass {
+    
+    private static String[] input;
+    private static boolean[] isPrime;
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        input = reader.readLine().split(" ");
+        
+        int m = Integer.parseInt(input[0]);
+        int n = Integer.parseInt(input[1]);
+        isPrime = new boolean[n + 1];
+        
+        Arrays.fill(isPrime, true);
+        
+        isPrime[0] = false;
+        isPrime[1] = false;
+        
+        for (int i = 2; i <= Math.sqrt(n); i++) {
+            if (isPrime[i]) {
+                int j = 2;
+                
+                while (i * j <= n) {
+                    // i의 배수를 모두 제거한다.
+                    isPrime[i * j] = false;
+                    j++;
+                }
+            }
+        }
+        
+        for (int i = m; i <= n; i++) {
+            if (isPrime[i]) {
+                System.out.println(i);
+            }
+        }
+    }
+}
+```
+
+### 문제 해설
+
+- 에라토스테네스의 체 알고리즘을 이용해 해결할 수 있다.
+
+## 예제 B-2 암호 만들기
+
+### 풀이 과정
+
+- 암호는 서로 다른 L개의 알파벳 소문자들로 구성되며, 최소 한 개의 모음과 두 개의 자음으로 구성되어 있다.
+- 정렬을 선호하기 때문에 암호를 이루는 알파벳이 암호에서 증가하는 순서로 배열되었을 것
+- 일단 입력된 알파벳을 정렬 → 뽑기
+- 단, 한개의 모음(aeiou), 두 개의 자음으로 구성된 것을 검사해야
+    - 어짜피 모음 아니면 자음이니 모음이 하나 이상인것만 확인
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class MyClass {
+    
+    private static final List<String> VOWEL = Arrays.asList(new String[] { "a", "e", "i", "o", "u" });
+    private static String[] input;
+    private static int[] bucket;
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
+        input = reader.readLine().split(" ");
+        int l = Integer.parseInt(input[0]);
+        int c = Integer.parseInt(input[1]);
+        
+        String[] alphabet = reader.readLine().split(" ");
+        Arrays.sort(alphabet);
+        
+        bucket = new int[l];
+        
+        combination(alphabet, c, l);
+    }
+    
+    private static void combination(String[] alphabet, int n, int r) {
+        if (r == 0) {
+            StringBuilder answer = new StringBuilder();
+            int vowel = 0;
+            
+            for (int i = 0; i < bucket.length; i++) {
+                if (VOWEL.contains(alphabet[bucket[i]])) {
+                    vowel++;
+                }
+                answer.append(alphabet[bucket[i]]);
+            }
+            
+            if (vowel >= 1) {
+                System.out.println(answer);
+            }
+
+            return;
+        }
+        
+        int lastIndex = bucket.length - r - 1;
+        int smallest = 0;
+        
+        if (bucket.length > r) {
+            smallest = bucket[lastIndex] + 1;
+        }
+        
+        for (int i = smallest; i < n; i++) {
+            bucket[lastIndex + 1] = i;
+            combination(alphabet, n, r - 1);
+        }
+    }
+}
+```
+
+### 문제 해설
+
+- 조합 알고리즘을 사용한다.
