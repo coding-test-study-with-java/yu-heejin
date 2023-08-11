@@ -314,3 +314,7 @@ public class Main {
 - N개의 동전을 이용해 만들 수 없는 양의 정수 금액 중 최솟값을 구하는 프로그램
 - 일단 가진 동전을 오름차순으로 정렬한다.
     - 그 후, 하나씩 더해주며 비교한다.
+
+## 무지의 먹방 라이브
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/779940ff-848a-4ddc-8f01-4afc5ebfee07/Untitled.png)
