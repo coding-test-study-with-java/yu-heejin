@@ -316,5 +316,4 @@ public class Main {
     - 그 후, 하나씩 더해주며 비교한다.
 
 ## 무지의 먹방 라이브
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/779940ff-848a-4ddc-8f01-4afc5ebfee07/Untitled.png)
+![image](https://github.com/coding-test-study-with-java/yu-heejin/assets/96467030/7cf00c7b-0cae-467d-bc43-7c0c4be0e99d)
