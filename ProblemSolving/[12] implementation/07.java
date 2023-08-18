@@ -14,8 +14,8 @@ public class Main {
         int leftSum = 0;
         int rightSum = 0;
         for (int i = 0; i < numberSize / 2; i++) {
-            int front = input.charAt(i);
-            int back = input.charAt(numberSize - 1 - i);
+            int front = input.charAt(i) -'0';
+            int back = input.charAt(numberSize - 1 - i) - '0';
             
             leftSum += front;
             rightSum += back;
