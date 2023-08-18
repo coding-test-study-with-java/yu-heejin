@@ -79,42 +79,36 @@ public class MyClass {
 
 ## 문자열 압축
 
-미..완성..
-
 ```java
 import java.util.*;
+
+// 프로그래머스 기준 메모리: 79.6 MB, 시간: 0.07 ms
 
 class Solution {
     
     public int solution(String s) {
-        int min = 1001;
+        int min = s.length();
+        
+        if (s.length() == 1) {
+            return 1;
+        }
         
         for (int i = 1; i <= s.length() / 2; i++) {
-            // 배열 초기화
-            List<String> arr = new ArrayList<>();
-            for (int j = 0; j <= s.length() - i; j += i) {
-                arr.add(s.substring(j, j + i));
-            }
-            if (i > 1 && s.length() % i != 0) {
-                arr.add(s.substring(s.length() - i + 1));
-            }
-            
-            // 문자열 비교
-            String start = arr.get(0);
-            int count = 1;  // count는 1부터 시작해야함
+            String start = s.substring(0, i);
+            int count = 1;
             StringBuilder sb = new StringBuilder();
-             for (int j = 1; j < arr.size(); j++) {
-                String curr = arr.get(j);
-                
-                if (!start.equals(curr)) {
+            
+            for (int j = i; j <= s.length() - i; j += i) {
+                String curr = s.substring(j, j + i);
+                if (start.equals(curr)) {
+                    count++;
+                } else {
                     if (count > 1) {
                         sb.append(count);
                     }
                     sb.append(start);
-                    count = 1;
                     start = curr;
-                } else {
-                    count++;
+                    count = 1;
                 }
             }
             
@@ -123,7 +117,9 @@ class Solution {
             }
             sb.append(start);
             
-            min = Math.min(min, sb.toString().length());
+            // 문자열이 나누어 떨어지지 않는 경우 고려
+            int div = s.length() % i;
+            min = Math.min(min, sb.toString().length() + div);
         }
         
         return min; // 가장 작은 문자열 길이 저장
