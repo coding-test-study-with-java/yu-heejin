@@ -311,9 +311,87 @@ public class Main {
 
 ## 만들 수 없는 금액
 
-- N개의 동전을 이용해 만들 수 없는 양의 정수 금액 중 최솟값을 구하는 프로그램
-- 일단 가진 동전을 오름차순으로 정렬한다.
-    - 그 후, 하나씩 더해주며 비교한다.
+- 다시 풀어보기
+
+## 볼링공 고르기
+
+```java
+import java.util.*;
+import java.io.*;
+
+// CPU Time: 0.11 sec(s), Memory: 31776 kilobyte(s)
+
+public class MyClass {
+    
+    private static String[] input;
+    
+    public static void main(String args[]) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        
+        input = br.readLine().split(" ");
+        int n = Integer.parseInt(input[0]);
+        int m = Integer.parseInt(input[1]);
+        
+        input = br.readLine().split(" ");
+        List<Integer> balls = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            balls.add(Integer.parseInt(input[i]));
+        }
+        
+        Collections.sort(balls);
+        
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            int selectedBall = balls.get(i);
+            for (int j = 0; j < n; j++) {
+                if (selectedBall < balls.get(j)) {
+                    count++;
+                }
+            }
+        }
+        
+        System.out.println(count);
+    }
+}
+```
+
+### 문제 해설
+
+- 문제를 해결하려면 무게마다 볼링공이 몇개 있는지를 계산해야한다.
+- A를 기준으로 무게가 낮은 볼링공부터 무게가 높은 볼링공까지 순서대로 하나씩 확인한다.
+
+```java
+import java.util.*;
+
+public class Main {
+
+    public static int n, m;
+    // 1부터 10까지의 무게를 담을 수 있는 배열
+    public static int[] arr = new int[11];
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        n = sc.nextInt();
+        m = sc.nextInt();
+
+        for (int i = 0; i < n; i++) {
+            int x = sc.nextInt();
+            arr[x] += 1;   // 해당 무게의 공 개수 저장
+        }
+
+        int result = 0;
+
+        // 1부터 m까지의 각 무게에 대하여 처리
+        for (int i = 1; i <= m; i++) {
+            n -= arr[i]; // 무게가 i인 볼링공의 개수(A가 선택할 수 있는 개수) 제외
+            result += arr[i] * n; // B가 선택하는 경우의 수와 곱해주기
+        }
+
+        System.out.println(result);
+    }
+}
+```
 
 ## 무지의 먹방 라이브
-![image](https://github.com/coding-test-study-with-java/yu-heejin/assets/96467030/7cf00c7b-0cae-467d-bc43-7c0c4be0e99d)
+
+- 다시 풀어보기
