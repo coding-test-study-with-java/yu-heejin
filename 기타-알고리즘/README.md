@@ -283,19 +283,19 @@ public static void main(String[] args) {
             int smallest = 0;
             
             for (int i = smallest; i < n; i++) {
-        				boolean isPick = false;
-        		
-        				for (int j = 0; j < bucket.length; j++) {
-        					if (i == bucket[j]) {
-        						isPick = true;
-        						break;
-        					}
-        				}
-        				
-        				if (!isPick) {
-        	        bucket[lastIndex + 1] = i;
-        	        combination(numbers, n, r - 1);
-        				}
+                boolean isPick = false;
+        
+                for (int j = 0; j < lastIndex + 1; j++) {
+                    if (i == bucket[j]) {
+                        isPick = true;
+                        break;
+                    }
+                }
+                
+                if (!isPick) {
+                    bucket[lastIndex + 1] = i;
+                    combination(numbers, n, r - 1);
+                }
             }
         }
         ```
@@ -350,7 +350,7 @@ public static void main(String[] args) {
                     return;
                 }
                 
-        				// 조합이기 때문에 가장 마지막에 뽑힌 수보다 큰 수를 뽑는다.
+        		// 조합이기 때문에 가장 마지막에 뽑힌 수보다 큰 수를 뽑는다.
                 int lastIndex = bucket.length - r - 1;  // 가장 최근의 뽑힌 수가 저장된 위치
                 int smallest = getSmallest(r, lastIndex);  // 뽑혀야하는 최소 수
                 
