@@ -16,30 +16,22 @@ public class Main {
         }
         
         Arrays.sort(meeting, (o1, o2) -> {
-            if (o1[0] != o2[0]) {
-                return o1[0] - o2[0];
+            if (o1[1] != o2[1]) {
+                return o1[1] - o2[1];
             }
             
-            return o1[1] - o2[1];
+            return o1[0] - o2[0];
         });
         
-        int[] dp = new int[n];
-        int max = -1;
-        for (int i = 0; i < n; i++) {
-            int end = meeting[i][1];
-            dp[i]++;
-            for (int j = i + 1; j < n; j++) {
-                if (end <= meeting[j][0]) {
-                    dp[i]++;
-                    end = meeting[j][1];
-                }
-            }
-            
-            if (max < dp[i]) {
-                max = dp[i];
+        int end = meeting[0][1];
+        int count = 1;
+        for (int i = 1; i < n; i++) {
+            if (end <= meeting[i][0]) {
+                end = meeting[i][1];
+                count++;
             }
         }
         
-        System.out.println(max);
+        System.out.println(count);
     }
 }
