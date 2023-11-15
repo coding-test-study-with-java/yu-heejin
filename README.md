@@ -9,3 +9,6 @@
 ### 7주차
 * ~~[회의실 배정](https://www.acmicpc.net/problem/1931)~~
 * ~~[행성 터널](https://www.acmicpc.net/problem/2887)~~
+### 8주차
+* [2048 (Easy)](https://www.acmicpc.net/problem/12100)
+* [두 동전](https://www.acmicpc.net/problem/16197)
